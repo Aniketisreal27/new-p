@@ -19,7 +19,7 @@ const T = {
 // via Vite proxy in dev). Streams response and calls onChunk with accumulated text.
 async function callClaude(messages, system, onChunk) {
   const payload = {
-    model: "claude-sonnet-4-6",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 4000,
     system,
     messages,
