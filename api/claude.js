@@ -3,7 +3,6 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // 1. Only allow POST requests
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
@@ -11,7 +10,6 @@ export default async function handler(req) {
     });
   }
 
-  // 2. Grab the secret key from Vercel Environment Variables
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
@@ -23,10 +21,8 @@ export default async function handler(req) {
   }
 
   try {
-    // 3. Read the incoming request body from your frontend
     const body = await req.text();
 
-    // 4. Forward the request to Anthropic securely
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -37,11 +33,13 @@ export default async function handler(req) {
       body: body,
     });
 
-    // 5. Send Anthropic's exact response (or error) back to your frontend
-    const data = await anthropicRes.text();
-    return new Response(data, {
+    // 🔥 THE FIX: We pass the raw stream directly back to your frontend!
+    // This bypasses the 504 timeout because data starts flowing instantly.
+    return new Response(anthropicRes.body, {
       status: anthropicRes.status,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': anthropicRes.headers.get('Content-Type') || 'application/json' 
+      },
     });
 
   } catch (error) {
@@ -51,4 +49,5 @@ export default async function handler(req) {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+}
 }
