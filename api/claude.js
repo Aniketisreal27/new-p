@@ -33,8 +33,6 @@ export default async function handler(req) {
       body: body,
     });
 
-    // 🔥 THE FIX: We pass the raw stream directly back to your frontend!
-    // This bypasses the 504 timeout because data starts flowing instantly.
     return new Response(anthropicRes.body, {
       status: anthropicRes.status,
       headers: { 
@@ -49,5 +47,4 @@ export default async function handler(req) {
       headers: { 'Content-Type': 'application/json' },
     });
   }
-}
 }
